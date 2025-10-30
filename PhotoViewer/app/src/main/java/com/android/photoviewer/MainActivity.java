@@ -31,8 +31,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
-    String site_url = "http://10.0.2.2:8000"; // 로컬 Django 서버 주소
-    String token = "1db64f54572b2cd2c98d3af0aab5542fe2540415"; // 본인 토큰으로 교체!
+    String site_url = "https://www.pythonanywhere.com/user/doyoung"; // 로컬 Django 서버 주소
+    String token = "1db64f54572b2cd2c98d3af0aab5542fe2540415"; // 내가 쓰고 있는 토큰으로 교체
     CloadImage taskDownload;
     PutPost taskUpload;
 
