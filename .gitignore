@@ -1,0 +1,36 @@
+# ========== PYTHON / DJANGO ==========
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+.venv/
+db.sqlite3
+/staticfiles/
+media/
+*.log
+.env
+.vscode/
+.idea/
+.DS_Store
+build/
+dist/
+*.egg-info/
+
+# ========== ANDROID STUDIO ==========
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties

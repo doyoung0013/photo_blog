@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ post.title }} - Django Blog</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+</head>
+<body>
+    <header class="blog-header">
+        <div class="header-inner">
+            <h1 class="logo">
+            <a href="/">DOYOUNG's DJANGO BLOG</a>
+            </h1>
+        </div>
+    </header>
+
+
+    <main class="container detail-container">
+        <article class="post-card detail-card">
+            {% if post.image %}
+            <div class="image-wrapper detail-image">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image">
+            </div>
+            {% endif %}
+            <div class="post-content">
+                <h2 class="post-title">{{ post.title }}</h2>
+                <p class="post-date">{{ post.published_date|date:"Y-m-d H:i" }}</p>
+                <div class="post-text detail-text">{{ post.text }}</div>
+            </div>
+        </article>
+
+        <div class="action-buttons">
+            <a href="/" class="btn-back">← 목록으로 돌아가기</a>
+            <a href="{% url 'post_delete' pk=post.pk %}" class="btn-delete"
+               onclick="return confirm('정말 이 글을 삭제하시겠습니까?');">🗑️ 삭제</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 <strong>Django Blog</strong> | Designed with ❤️ by DoYoung</p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>새 글 작성 - Django Blog</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+</head>
+<body>
+    <header class="blog-header">
+        <div class="header-inner">
+            <h1 class="logo">
+                <a href="/">DOYOUNG's DJANGO BLOG</a>
+            </h1>
+        </div>
+    </header>
+
+    <main class="container form-container">
+        <article class="post-card form-card">
+            <h2 class="form-title">📝 새 글 작성</h2>
+            <form method="POST" enctype="multipart/form-data" class="post-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">제목</label>
+                    {{ form.title }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">내용</label>
+                    {{ form.text }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">이미지</label>
+                    {{ form.image }}
+                </div>
+
+                <button type="submit" class="btn-submit">게시하기</button>
+            </form>
+        </article>
+
+        <div class="back-link-wrapper">
+            <a href="/" class="back-link">← 목록으로 돌아가기</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 <strong>Django Blog</strong> | Designed with ❤️ by DoYoung</p>
+    </footer>
+</body>
+</html>

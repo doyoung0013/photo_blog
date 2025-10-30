@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Django Blog</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+</head>
+<body>
+    <header class="blog-header">
+        <div class="header-inner">
+            <h1 class="logo">
+            <a href="/">DOYOUNG's DJANGO BLOG</a>
+            </h1>
+        </div>
+    </header>
+
+    <div class="action-bar">
+        <a href="/post/new" class="btn-write">✏️ 작성하기</a>
+    </div>
+
+    <main class="container">
+        {% for post in posts %}
+            <article class="post-card">
+                <a href="/post/{{ post.id }}" class="post-link">
+                    {% if post.image %}
+                        <div class="image-wrapper">
+                            <img src="{{ post.image.url }}" alt="{{ post.title }}" class="post-image">
+                        </div>
+                    {% endif %}
+                    <div class="post-content">
+                        <h2 class="post-title">{{ post.title }}</h2>
+                        <p class="post-date">{{ post.published_date|date:"Y-m-d H:i" }}</p>
+                        <p class="post-text">{{ post.text|truncatechars:150|linebreaksbr }}</p>
+                    </div>
+                </a>
+            </article>
+        {% empty %}
+            <p class="empty">아직 게시물이 없습니다 🌱</p>
+        {% endfor %}
+    </main>
+
+    <footer class="footer">
+        <p>© 2025 <strong>Django Blog</strong> | Designed with ❤️ by DoYoung</p>
+    </footer>
+</body>
+</html>
