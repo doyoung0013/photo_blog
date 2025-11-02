@@ -27,12 +27,19 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.Intent;
+
 
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
-    String site_url = "https://www.pythonanywhere.com/user/doyoung"; // 로컬 Django 서버 주소
-    String token = "1db64f54572b2cd2c98d3af0aab5542fe2540415"; // 내가 쓰고 있는 토큰으로 교체
+
+    String site_url = "https://doyoung.pythonanywhere.com"; //배포 서버
+    //String site_url = "http://10.0.2.2:8000"; //개발 서버
+    //String site_url = "http://192.168.45.206:8000"; //socket_server test
+
+    String token = "1db64f54572b2cd2c98d3af0aab5542fe2540415";
+
     CloadImage taskDownload;
     PutPost taskUpload;
 
@@ -41,9 +48,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         textView = findViewById(R.id.textView);
+
+        // ✅ HTTPS 인증서 검증 무시 (PythonAnywhere HTTPS 접근용 / 실습용)
+        try {
+            javax.net.ssl.HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+            javax.net.ssl.SSLContext context = javax.net.ssl.SSLContext.getInstance("TLS");
+            context.init(null, new javax.net.ssl.TrustManager[]{new javax.net.ssl.X509TrustManager() {
+                public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+                public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) {}
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() { return new java.security.cert.X509Certificate[0]; }
+            }}, new java.security.SecureRandom());
+            javax.net.ssl.HttpsURLConnection.setDefaultSSLSocketFactory(context.getSocketFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    /** [동기화 버튼] 클릭 시 서버에서 이미지 목록 불러오기 */
+    /** ✅ '동기화' 버튼 클릭 시: 서버에서 이미지 목록 불러오기 */
     public void onClickDownload(View v) {
         if (taskDownload != null && taskDownload.getStatus() == AsyncTask.Status.RUNNING)
             taskDownload.cancel(true);
@@ -52,18 +73,18 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "Download 시작", Toast.LENGTH_SHORT).show();
     }
 
-    /** [새로운 이미지 게시] 버튼 클릭 시 이미지 업로드 */
+    /** ✅ '새로운 이미지 게시' 버튼 클릭 시: 이미지 업로드 */
     public void onClickUpload(View v) {
         File imageFile = new File("/storage/emulated/0/DCIM/Camera/sample.jpg");
         if (!imageFile.exists()) {
             Toast.makeText(this, "이미지 파일이 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
-        taskUpload = new PutPost(imageFile, "테스트 업로드 from Android");
+        taskUpload = new PutPost(imageFile, "안드로이드에서 올린 테스트 게시물");
         taskUpload.execute(site_url + "/api_root/Post/");
     }
 
-    /** --------------------- AsyncTask ①: 이미지 다운로드 --------------------- */
+    /** ✅ AsyncTask ① : 이미지 다운로드 (GET) */
     private class CloadImage extends AsyncTask<String, Integer, List<Bitmap>> {
         @Override
         protected List<Bitmap> doInBackground(String... urls) {
@@ -75,8 +96,8 @@ public class MainActivity extends AppCompatActivity {
                 conn = (HttpURLConnection) urlAPI.openConnection();
                 conn.setRequestProperty("Authorization", "Token " + token);
                 conn.setRequestMethod("GET");
-                conn.setConnectTimeout(3000);
-                conn.setReadTimeout(3000);
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
 
                 if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                     InputStream is = conn.getInputStream();
@@ -103,6 +124,8 @@ public class MainActivity extends AppCompatActivity {
                             imgStream.close();
                         }
                     }
+                } else {
+                    System.out.println("GET 실패: " + conn.getResponseCode());
                 }
             } catch (IOException | JSONException e) {
                 e.printStackTrace();
@@ -125,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /** --------------------- AsyncTask ②: 이미지 업로드 --------------------- */
+    /** ✅ AsyncTask ② : 이미지 업로드 (POST) */
     private class PutPost extends AsyncTask<String, Integer, String> {
         private final File imageFile;
         private final String title;
@@ -150,8 +173,8 @@ public class MainActivity extends AppCompatActivity {
                 conn.setRequestMethod("POST");
                 conn.setDoOutput(true);
                 conn.setUseCaches(false);
-                conn.setConnectTimeout(3000);
-                conn.setReadTimeout(3000);
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
                 conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
                 DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
@@ -197,5 +220,11 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
         }
+
+    }
+
+    public void onClickGoToUpload(View v) {
+        Intent intent = new Intent(MainActivity.this, UploadActivity.class);
+        startActivity(intent);
     }
 }
