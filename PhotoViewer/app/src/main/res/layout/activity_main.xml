@@ -7,10 +7,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <!-- 상단 버튼 두 개 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="53dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="4dp">
 
         <Button
             android:id="@+id/btn_load"
@@ -18,7 +20,8 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:onClick="onClickDownload"
-            android:text="동기화" />
+            android:text="동기화"
+            android:textColor="@android:color/white" />
 
         <Button
             android:id="@+id/btnUpload"
@@ -27,21 +30,25 @@
             android:layout_weight="1"
             android:text="새로운 이미지 게시"
             android:onClick="onClickGoToUpload"
-            android:backgroundTint="#2c3e50"
+            android:backgroundTint="#FF2C3E50"
             android:textColor="@android:color/white" />
-
     </LinearLayout>
 
+    <!-- 텍스트 상태 표시 -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="..." />
+        android:text="..."
+        android:padding="8dp" />
 
+    <!-- ✅ 게시물 리스트 RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:orientation="vertical" />
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:orientation="vertical"
+        tools:listitem="@layout/item_post" />
+
 </LinearLayout>

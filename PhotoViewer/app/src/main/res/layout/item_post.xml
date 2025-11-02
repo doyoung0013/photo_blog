@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="10dp"
+    android:layout_marginBottom="12dp"
+    android:background="#f9f9f9"
+    android:minHeight="100dp"
+    android:baselineAligned="false">
+
+    <ImageView
+        android:id="@+id/img_post"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="게시물 이미지" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="제목"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tv_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="게시물 내용"
+        android:textSize="15sp"
+        android:layout_marginTop="4dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <TextView
+        android:id="@+id/tv_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="작성일"
+        android:textSize="13sp"
+        android:textColor="#777"
+        android:layout_marginTop="2dp" />
+
+    <TextView
+        android:id="@+id/tv_likes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="❤️ 0"
+        android:textSize="14sp"
+        android:textColor="#E74C3C"
+        android:layout_marginTop="4dp" />
+
+</LinearLayout>

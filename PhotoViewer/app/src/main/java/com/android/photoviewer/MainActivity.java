@@ -28,6 +28,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -84,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
         taskUpload.execute(site_url + "/api_root/Post/");
     }
 
-    /** ✅ AsyncTask ① : 이미지 다운로드 (GET) */
-    private class CloadImage extends AsyncTask<String, Integer, List<Bitmap>> {
+    /** ✅ AsyncTask ① : 이미지 + 게시물 목록 다운로드 (GET) */
+    private class CloadImage extends AsyncTask<String, Integer, List<PostItem>> {
         @Override
-        protected List<Bitmap> doInBackground(String... urls) {
-            List<Bitmap> bitmapList = new ArrayList<>();
+        protected List<PostItem> doInBackground(String... urls) {
+            List<PostItem> postList = new ArrayList<>();
             HttpURLConnection conn = null;
 
             try {
@@ -111,18 +116,16 @@ public class MainActivity extends AppCompatActivity {
 
                     JSONArray aryJson = new JSONArray(result.toString());
 
-                    // 모든 게시글의 이미지 다운로드
                     for (int i = 0; i < aryJson.length(); i++) {
                         JSONObject postJson = (JSONObject) aryJson.get(i);
-                        String imageUrl = postJson.getString("image");
-                        if (imageUrl != null && !imageUrl.isEmpty()) {
-                            URL imgUrl = new URL(imageUrl);
-                            HttpURLConnection imgConn = (HttpURLConnection) imgUrl.openConnection();
-                            InputStream imgStream = imgConn.getInputStream();
-                            Bitmap bmp = BitmapFactory.decodeStream(imgStream);
-                            bitmapList.add(bmp);
-                            imgStream.close();
-                        }
+                        int id = postJson.getInt("id");
+                        String title = postJson.optString("title", "");
+                        String text = postJson.optString("text", "");
+                        String imageUrl = postJson.optString("image", "");
+                        String publishedDate = postJson.optString("published_date", "");
+                        int likeCount = postJson.optInt("like_count", 0);
+
+                        postList.add(new PostItem(id, title, text, imageUrl, publishedDate, likeCount));
                     }
                 } else {
                     System.out.println("GET 실패: " + conn.getResponseCode());
@@ -132,18 +135,18 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 if (conn != null) conn.disconnect();
             }
-            return bitmapList;
+            return postList;
         }
 
         @Override
-        protected void onPostExecute(List<Bitmap> images) {
-            if (images.isEmpty()) {
-                textView.setText("불러올 이미지가 없습니다.");
+        protected void onPostExecute(List<PostItem> posts) {
+            if (posts.isEmpty()) {
+                textView.setText("불러올 게시물이 없습니다.");
             } else {
-                textView.setText("이미지 로드 성공!");
+                textView.setText("게시물 로드 성공!");
                 RecyclerView recyclerView = findViewById(R.id.recyclerView);
                 recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
-                recyclerView.setAdapter(new ImageAdapter(images));
+                recyclerView.setAdapter(new PostAdapter(posts, site_url));
             }
         }
     }
@@ -227,4 +230,5 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(MainActivity.this, UploadActivity.class);
         startActivity(intent);
     }
+
 }

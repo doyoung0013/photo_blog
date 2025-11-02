@@ -11,4 +11,6 @@ urlpatterns = [
     path('post/new/', views.post_new, name='post_new'),
     path('post/<int:pk>/delete/', views.post_delete, name='post_delete'),
     path('api_root/', include(router.urls)), 
+    path('posts/<int:pk>/like/', views.like_post, name='like_post'),
+    path('posts/<int:pk>/comment/', views.add_comment, name='add_comment'),
 ]
