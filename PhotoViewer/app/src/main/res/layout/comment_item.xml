@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="#f7f9fc"
+    android:layout_marginBottom="8dp"
+    android:elevation="1dp">
+
+    <TextView
+        android:id="@+id/comment_nickname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="익명"
+        android:textStyle="bold"
+        android:textColor="#34495e"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/comment_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="댓글 내용입니다."
+        android:textColor="#2c3e50"
+        android:textSize="14sp"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/comment_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="방금 전"
+        android:textColor="#7f8c8d"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp" />
+</LinearLayout>

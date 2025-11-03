@@ -85,3 +85,15 @@ def add_comment(request, pk):
         serializer.save(post=post)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# 특정 게시물의 댓글 목록 조회
+@api_view(['GET'])
+def get_comments(request, pk):
+    try:
+        post = Post.objects.get(pk=pk)
+    except Post.DoesNotExist:
+        return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    comments = post.comments.order_by('-created_at')
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)

@@ -13,4 +13,5 @@ urlpatterns = [
     path('api_root/', include(router.urls)), 
     path('posts/<int:pk>/like/', views.like_post, name='like_post'),
     path('posts/<int:pk>/comment/', views.add_comment, name='add_comment'),
+    path('posts/<int:pk>/comments/', views.get_comments, name='get_comments'),
 ]

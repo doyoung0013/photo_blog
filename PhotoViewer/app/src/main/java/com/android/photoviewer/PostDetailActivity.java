@@ -1,6 +1,9 @@
 package com.android.photoviewer;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -10,12 +13,21 @@ import android.widget.TextView;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import androidx.annotation.NonNull;
+
 
 public class PostDetailActivity extends AppCompatActivity {
     String site_url = "https://doyoung.pythonanywhere.com";
@@ -26,7 +38,11 @@ public class PostDetailActivity extends AppCompatActivity {
     ImageView imageView;
     TextView titleView, textView, likeCountView;
     EditText nickInput, commentInput;
-    private long lastCommentTime = 0;
+    RecyclerView commentListView;
+    CommentAdapter commentAdapter;
+    List<CommentItem> commentList = new ArrayList<>();
+
+    private long lastCommentTime = 0; // 댓글 중복 작성 방지용 타이머
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +55,12 @@ public class PostDetailActivity extends AppCompatActivity {
         likeCountView = findViewById(R.id.detail_likes);
         nickInput = findViewById(R.id.input_nickname);
         commentInput = findViewById(R.id.input_comment);
+        commentListView = findViewById(R.id.comment_list);
 
-
+        // 댓글 목록 RecyclerView 기본 설정
+        commentAdapter = new CommentAdapter(commentList);
+        commentListView.setLayoutManager(new LinearLayoutManager(this));
+        commentListView.setAdapter(commentAdapter);
 
         postId = getIntent().getIntExtra("post_id", -1);
         Log.d("DEBUG", "Clicked post id = " + postId);
@@ -51,11 +71,13 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         loadDetail();
+        loadComments(); // ✅ 댓글 목록도 함께 불러오기
 
         findViewById(R.id.btn_like).setOnClickListener(v -> likePost());
         findViewById(R.id.btn_comment).setOnClickListener(v -> sendComment());
     }
 
+    // ✅ 게시물 상세 정보 불러오기
     private void loadDetail() {
         new Thread(() -> {
             try {
@@ -68,7 +90,7 @@ public class PostDetailActivity extends AppCompatActivity {
                 while ((line = r.readLine()) != null) sb.append(line);
                 JSONObject obj = new JSONObject(sb.toString());
 
-                // ✅ 이미지도 백그라운드에서 다운로드
+                // 이미지 로드
                 String imageUrl = obj.optString("image", "");
                 Bitmap bitmap = null;
                 if (!imageUrl.isEmpty()) {
@@ -78,11 +100,9 @@ public class PostDetailActivity extends AppCompatActivity {
                         in.close();
                     } catch (Exception e) {
                         Log.e("IMAGE_ERROR", "이미지 로드 실패: " + e.getMessage());
-                        e.printStackTrace();
                     }
                 }
 
-                // ✅ UI 업데이트만 UI 스레드에서
                 final Bitmap finalBitmap = bitmap;
                 runOnUiThread(() -> {
                     titleView.setText(obj.optString("title", ""));
@@ -91,17 +111,53 @@ public class PostDetailActivity extends AppCompatActivity {
 
                     if (finalBitmap != null) {
                         imageView.setImageBitmap(finalBitmap);
-                    } else {
-                        Log.d("IMAGE_ERROR", "비트맵이 null입니다.");
                     }
                 });
             } catch (Exception e) {
                 Log.e("DETAIL_ERROR", "상세 정보 로드 실패: " + e.getMessage());
-                e.printStackTrace();
             }
         }).start();
     }
 
+    // ✅ 댓글 목록 불러오기
+    private void loadComments() {
+        new Thread(() -> {
+            try {
+                URL url = new URL(site_url + "/posts/" + postId + "/comments/");
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                conn.setRequestProperty("Authorization", "Token " + token);
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                reader.close();
+
+                JSONArray arr = new JSONArray(sb.toString());
+                List<CommentItem> newComments = new ArrayList<>();
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject obj = arr.getJSONObject(i);
+                    newComments.add(new CommentItem(
+                            obj.optString("nickname", "익명"),
+                            obj.optString("content", ""),
+                            obj.optString("created_at", "")
+                    ));
+                }
+
+                runOnUiThread(() -> {
+                    commentList.clear();
+                    commentList.addAll(newComments);
+                    commentAdapter.notifyDataSetChanged();
+                });
+
+            } catch (Exception e) {
+                Log.e("COMMENT_LOAD", "댓글 불러오기 실패: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    // ✅ 좋아요 +1
     private void likePost() {
         new Thread(() -> {
             try {
@@ -109,24 +165,28 @@ public class PostDetailActivity extends AppCompatActivity {
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.getInputStream().close();
+
                 runOnUiThread(() -> {
                     int count = Integer.parseInt(likeCountView.getText().toString().replace("❤️ ", "")) + 1;
                     likeCountView.setText("❤️ " + count);
                 });
-            } catch (Exception e) { e.printStackTrace(); }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }).start();
     }
 
+    // ✅ 댓글 등록
     private void sendComment() {
         String nick = nickInput.getText().toString().trim();
         String content = commentInput.getText().toString().trim();
 
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastCommentTime < 300000) {
+        long now = System.currentTimeMillis();
+        if (now - lastCommentTime < 300000) {
             Toast.makeText(this, "30초 이내에는 댓글을 다시 작성할 수 없습니다.", Toast.LENGTH_SHORT).show();
             return;
         }
-        lastCommentTime = currentTime;
+        lastCommentTime = now;
 
         if (content.isEmpty()) {
             Toast.makeText(this, "댓글 내용을 입력해주세요.", Toast.LENGTH_SHORT).show();
@@ -147,8 +207,8 @@ public class PostDetailActivity extends AppCompatActivity {
                 json.put("content", content);
 
                 conn.getOutputStream().write(json.toString().getBytes("UTF-8"));
-
                 int responseCode = conn.getResponseCode();
+
                 InputStream stream = (responseCode >= 400)
                         ? conn.getErrorStream()
                         : conn.getInputStream();
@@ -167,6 +227,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     if (finalCode == 201) {
                         commentInput.setText("");
                         Toast.makeText(this, "댓글 등록 완료!", Toast.LENGTH_SHORT).show();
+                        loadComments(); // ✅ 등록 후 즉시 갱신
                     } else if (finalCode == 429) {
                         Toast.makeText(this, "댓글을 너무 자주 작성하고 있습니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_LONG).show();
                     } else if (finalCode == 404) {
@@ -187,7 +248,58 @@ public class PostDetailActivity extends AppCompatActivity {
         }).start();
     }
 
+    // ✅ 댓글 데이터 클래스
+    public static class CommentItem {
+        String nickname;
+        String content;
+        String created_at;
+
+        public CommentItem(String nickname, String content, String created_at) {
+            this.nickname = nickname;
+            this.content = content;
+            this.created_at = created_at;
+        }
+    }
+
+    public static class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
+        private List<CommentItem> commentList;
+
+        public CommentAdapter(List<CommentItem> commentList) {
+            this.commentList = commentList;
+        }
+
+        @NonNull
+        @Override
+        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.comment_item, parent, false);
+            return new ViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+            CommentItem comment = commentList.get(position);
+            holder.nickname.setText(comment.nickname);
+            holder.content.setText(comment.content);
+            holder.time.setText(comment.created_at);
+        }
+
+        @Override
+        public int getItemCount() {
+            return commentList.size();
+        }
+
+        public static class ViewHolder extends RecyclerView.ViewHolder {
+            TextView nickname, content, time;
+
+            public ViewHolder(@NonNull View itemView) {
+                super(itemView);
+                nickname = itemView.findViewById(R.id.comment_nickname);
+                content = itemView.findViewById(R.id.comment_content);
+                time = itemView.findViewById(R.id.comment_time);
+            }
+        }
+    }
 
 
 }
-

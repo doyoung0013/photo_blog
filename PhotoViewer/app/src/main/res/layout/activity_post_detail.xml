@@ -102,5 +102,25 @@
             android:backgroundTint="#3498db"
             android:textColor="@android:color/white" />
 
+        <!-- 댓글 목록 제목 -->
+        <TextView
+            android:id="@+id/comment_section_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🗨️ 댓글 목록"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#2c3e50"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
+
+        <!-- 댓글 목록 RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/comment_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false" />
+
+
     </LinearLayout>
 </ScrollView>
