@@ -14,6 +14,8 @@ Django 기반 **Server**와 Android 기반 **Client**로 구성된 포토 블로
 ---
 
 ## 🧩 구성도
+
+```
 📱 Android (PhotoViewer)
 ├─ 이미지 업로드 (POST)
 ├─ 게시물 목록 불러오기 (GET)
@@ -27,11 +29,13 @@ Django 기반 **Server**와 Android 기반 **Client**로 구성된 포토 블로
 ├─ /posts/<id>/like/ ← 좋아요 +1
 ├─ /posts/<id>/comment/ ← 익명 댓글 작성
 └─ admin/ ← 관리자 페이지
+```
 
 ---
 
 ## 📁 프로젝트 폴더 구조
 
+```
 📦 프로젝트 루트
 │
 ├── 📁 PhotoBlogServer        ← Django 서버 폴더
@@ -46,7 +50,7 @@ Django 기반 **Server**와 Android 기반 **Client**로 구성된 포토 블로
 │     └── ... (Android 프로젝트 파일들)
 │
 └── 📄 모바일/웹서비스 프로젝트 공통평가 01_수행 결과 보고서.docx
-
+```
 
 ---
 
