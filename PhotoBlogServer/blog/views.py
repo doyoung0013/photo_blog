@@ -17,6 +17,9 @@ class BlogImages(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+    
+    def perform_create(self, serializer):
+        serializer.save(author=User.objects.first(), published_date=timezone.now())
 
 
 # 웹 페이지용 함수형 View들

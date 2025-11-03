@@ -35,50 +35,63 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- 🔍 검색창 + 정렬 스피너 영역 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:paddingBottom="4dp">
+        android:layout_marginBottom="6dp">
 
-        <!-- 제목 검색 입력창 -->
         <EditText
             android:id="@+id/edit_search"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:layout_weight="3"
+            android:layout_weight="4"
             android:hint="제목 검색"
             android:inputType="text"
-            android:padding="8dp"
-            android:background="@android:drawable/edit_text"
+            android:paddingHorizontal="12dp"
             android:drawableStart="@android:drawable/ic_menu_search"
-            android:drawablePadding="8dp" />
+            android:drawablePadding="8dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="#000000"
+            android:textColorHint="#888888"
+            android:background="@drawable/edittext_border_blue" />
 
-        <!-- 정렬 기준 선택 -->
-        <Spinner
-            android:id="@+id/spinner_sort"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_weight="2"
-            android:entries="@array/sort_options"
-            android:spinnerMode="dropdown"
-            android:layout_marginStart="6dp" />
-
-        <!-- 검색 버튼 -->
         <Button
             android:id="@+id/btn_search"
-            android:layout_width="wrap_content"
+            android:layout_width="100dp"
             android:layout_height="45dp"
-            android:text="검색"
-            android:onClick="onClickSearch"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
             android:backgroundTint="#2C3E50"
-            android:textColor="@android:color/white"
-            android:layout_marginStart="6dp" />
+            android:onClick="onClickSearch"
+            android:text="검색"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- 상태 텍스트 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="정렬 기준:"
+            android:textSize="14sp"
+            android:textColor="#2C3E50"
+            android:layout_marginEnd="4dp" />
+
+        <Spinner
+            android:id="@+id/spinner_sort"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:entries="@array/sort_options"
+            android:spinnerMode="dropdown" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
@@ -86,7 +99,6 @@
         android:padding="8dp"
         android:textAlignment="center" />
 
-    <!-- 게시물 리스트 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"

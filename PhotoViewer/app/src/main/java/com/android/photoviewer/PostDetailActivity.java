@@ -138,11 +138,15 @@ public class PostDetailActivity extends AppCompatActivity {
                 List<CommentItem> newComments = new ArrayList<>();
                 for (int i = 0; i < arr.length(); i++) {
                     JSONObject obj = arr.getJSONObject(i);
+                    String createdAt = obj.optString("created_at", "");
+
+                    // ✅ 날짜 포맷 변환 (2025-11-04 16:20 형태로)
+                    String formattedDate = formatDate(createdAt);
                     newComments.add(new CommentItem(
                             obj.optString("nickname", "익명"),
                             obj.optString("content", ""),
-                            obj.optString("created_at", "")
-                    ));
+                            formattedDate)
+                    );
                 }
 
                 runOnUiThread(() -> {
@@ -156,6 +160,21 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         }).start();
     }
+
+    // ISO 날짜 문자열을 "yyyy-MM-dd HH:mm" 형식으로 변환
+    private String formatDate(String isoDate) {
+        try {
+            java.text.SimpleDateFormat inputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.KOREA);
+            java.text.SimpleDateFormat outputFormat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.KOREA);
+
+            java.util.Date date = inputFormat.parse(isoDate.replace("Z", ""));
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return isoDate; // 변환 실패 시 원본 그대로 반환
+        }
+    }
+
 
     // ✅ 좋아요 +1
     private void likePost() {
