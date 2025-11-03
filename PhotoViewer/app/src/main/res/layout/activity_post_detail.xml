@@ -1,38 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fafbfd">
 
-    <LinearLayout android:orientation="vertical" android:padding="16dp"
-        android:layout_width="match_parent" android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
 
-        <ImageView android:id="@+id/detail_image"
-            android:layout_width="match_parent" android:layout_height="250dp"
-            android:scaleType="centerCrop" />
+        <!-- 이미지 -->
+        <ImageView
+            android:id="@+id/detail_image"
+            android:layout_width="match_parent"
+            android:layout_height="280dp"
+            android:scaleType="centerCrop"
+            android:background="@drawable/input_field"
+            android:layout_marginBottom="20dp" />
 
-        <TextView android:id="@+id/detail_title"
-            android:textSize="22sp" android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+        <!-- 제목 -->
+        <TextView
+            android:id="@+id/detail_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#2c3e50"
+            android:layout_marginBottom="12dp" />
 
-        <TextView android:id="@+id/detail_text"
-            android:layout_marginTop="4dp" android:textSize="16sp" />
+        <!-- 본문 내용 -->
+        <TextView
+            android:id="@+id/detail_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="#34495e"
+            android:lineSpacingExtra="4dp"
+            android:layout_marginBottom="20dp" />
 
-        <TextView android:id="@+id/detail_likes"
-            android:text="❤️ 0" android:textSize="16sp"
-            android:layout_marginTop="8dp" />
+        <!-- 좋아요 정보 -->
+        <TextView
+            android:id="@+id/detail_likes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="❤️ 0"
+            android:textSize="16sp"
+            android:textColor="#e74c3c"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
 
-        <Button android:id="@+id/btn_like"
+        <!-- 좋아요 버튼 -->
+        <Button
+            android:id="@+id/btn_like"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="좋아요 ❤️"
-            android:layout_marginTop="4dp" />
+            android:backgroundTint="#e74c3c"
+            android:textColor="@android:color/white"
+            android:layout_marginBottom="24dp" />
 
-        <EditText android:id="@+id/input_nickname"
-            android:hint="닉네임"
-            android:layout_marginTop="12dp" />
+        <!-- 댓글 섹션 제목 -->
+        <TextView
+            android:text="💬 댓글 작성"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#2c3e50"
+            android:layout_marginBottom="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-        <EditText android:id="@+id/input_comment"
-            android:hint="댓글 내용"
-            android:layout_marginTop="6dp" />
+        <!-- 닉네임 입력 -->
+        <EditText
+            android:id="@+id/input_nickname"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="닉네임을 입력하세요"
+            android:padding="12dp"
+            android:background="@drawable/input_field"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
 
-        <Button android:id="@+id/btn_comment"
+        <!-- 댓글 입력 -->
+        <EditText
+            android:id="@+id/input_comment"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:hint="댓글 내용을 입력하세요"
+            android:gravity="top"
+            android:padding="12dp"
+            android:background="@drawable/input_field"
+            android:textSize="16sp"
+            android:layout_marginBottom="12dp" />
+
+        <!-- 댓글 등록 버튼 -->
+        <Button
+            android:id="@+id/btn_comment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="댓글 등록"
-            android:layout_marginTop="6dp" />
+            android:backgroundTint="#3498db"
+            android:textColor="@android:color/white" />
+
     </LinearLayout>
 </ScrollView>

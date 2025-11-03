@@ -5,14 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    android:padding="8dp">
 
-    <!-- 상단 버튼 두 개 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="4dp">
+        android:paddingBottom="8dp">
 
         <Button
             android:id="@+id/btn_load"
@@ -21,6 +21,7 @@
             android:layout_weight="1"
             android:onClick="onClickDownload"
             android:text="동기화"
+            android:backgroundTint="#34495E"
             android:textColor="@android:color/white" />
 
         <Button
@@ -29,26 +30,69 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="새로운 이미지 게시"
-            android:onClick="onClickGoToUpload"
+            android:onClick="onClickUpload"
             android:backgroundTint="#FF2C3E50"
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-    <!-- 텍스트 상태 표시 -->
+    <!-- 🔍 검색창 + 정렬 스피너 영역 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="4dp">
+
+        <!-- 제목 검색 입력창 -->
+        <EditText
+            android:id="@+id/edit_search"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_weight="3"
+            android:hint="제목 검색"
+            android:inputType="text"
+            android:padding="8dp"
+            android:background="@android:drawable/edit_text"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawablePadding="8dp" />
+
+        <!-- 정렬 기준 선택 -->
+        <Spinner
+            android:id="@+id/spinner_sort"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_weight="2"
+            android:entries="@array/sort_options"
+            android:spinnerMode="dropdown"
+            android:layout_marginStart="6dp" />
+
+        <!-- 검색 버튼 -->
+        <Button
+            android:id="@+id/btn_search"
+            android:layout_width="wrap_content"
+            android:layout_height="45dp"
+            android:text="검색"
+            android:onClick="onClickSearch"
+            android:backgroundTint="#2C3E50"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="6dp" />
+    </LinearLayout>
+
+    <!-- 상태 텍스트 -->
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="..."
-        android:padding="8dp" />
+        android:padding="8dp"
+        android:textAlignment="center" />
 
-    <!-- ✅ 게시물 리스트 RecyclerView -->
+    <!-- 게시물 리스트 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="12dp"
+        android:layout_margin="8dp"
         android:orientation="vertical"
-        tools:listitem="@layout/item_post" />
+        tools:listitem="@layout/item_image_only" />
 
 </LinearLayout>

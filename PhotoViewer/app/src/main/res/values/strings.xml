@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">PhotoViewer</string>
+    <string-array name="sort_options">
+        <item>최신순</item>
+        <item>좋아요순</item>
+    </string-array>
 </resources>

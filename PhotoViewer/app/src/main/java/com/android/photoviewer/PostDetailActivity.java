@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.EditText;
@@ -38,7 +39,15 @@ public class PostDetailActivity extends AppCompatActivity {
         nickInput = findViewById(R.id.input_nickname);
         commentInput = findViewById(R.id.input_comment);
 
+
+
         postId = getIntent().getIntExtra("post_id", -1);
+        Log.d("DEBUG", "Clicked post id = " + postId);
+        if (postId == -1) {
+            Toast.makeText(this, "게시물 정보를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
 
         loadDetail();
 

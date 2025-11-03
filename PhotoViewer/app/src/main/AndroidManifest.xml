@@ -25,6 +25,9 @@
             android:name=".UploadActivity"
             android:exported="false" />
 
+        <activity android:name=".PostDetailActivity"
+            android:parentActivityName=".MainActivity" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
