@@ -71,7 +71,7 @@ def add_comment(request, pk):
     except Post.DoesNotExist:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # 사용자 IP 기반 Rate Limit (10초 이내 중복 댓글 방지)
+    # 사용자 IP 기반 Rate Limit (30초 이내 중복 댓글 방지)
     user_ip = request.META.get('REMOTE_ADDR')
     key = f"comment_limit_{user_ip}_{pk}"
     if cache.get(key):
@@ -79,7 +79,7 @@ def add_comment(request, pk):
             {'error': '댓글을 너무 자주 작성하고 있습니다. 잠시 후 다시 시도해주세요.'},
             status=status.HTTP_429_TOO_MANY_REQUESTS
         )
-    cache.set(key, True, timeout=10)
+    cache.set(key, True, timeout=30)
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(post=post)
