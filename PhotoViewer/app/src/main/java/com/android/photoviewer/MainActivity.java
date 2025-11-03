@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,7 +35,6 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-
 
 public class MainActivity extends AppCompatActivity {
 
@@ -69,6 +70,24 @@ public class MainActivity extends AppCompatActivity {
         spinnerSort = findViewById(R.id.spinner_sort);
         recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this)); // ✅ RecyclerView 초기화
+
+        // ✅ Spinner 항목 연결
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                this, R.array.sort_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSort.setAdapter(adapter);
+
+        // ✅ Spinner 선택 시 정렬 실행
+        spinnerSort.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selected = parent.getItemAtPosition(position).toString();
+                sortPosts(selected);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
 
         // ✅ 이미지 선택 런처 초기화
         imagePickerLauncher = registerForActivityResult(
@@ -111,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
 
     /** ✅ '새로운 이미지 게시' 버튼 클릭 시: 이미지 선택 다이얼로그 열기 */
     public void onClickUpload(View v) {
-        // 이미지 선택 다이얼로그 실행 (갤러리)
         imagePickerLauncher.launch("image/*");
     }
 
@@ -129,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
     private class CloadImage extends AsyncTask<String, Integer, List<PostItem>> {
         @Override
         protected List<PostItem> doInBackground(String... urls) {
-            List<PostItem> postList = new ArrayList<>();
+            List<PostItem> newList = new ArrayList<>();
             HttpURLConnection conn = null;
 
             try {
@@ -157,7 +175,7 @@ public class MainActivity extends AppCompatActivity {
                         String publishedDate = postJson.optString("published_date", "");
                         int likeCount = postJson.optInt("like_count", 0);
 
-                        postList.add(new PostItem(id, title, text, imageUrl, publishedDate, likeCount));
+                        newList.add(new PostItem(id, title, text, imageUrl, publishedDate, likeCount));
                     }
 
                 }
@@ -166,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
             } finally {
                 if (conn != null) conn.disconnect();
             }
-            return postList;
+            return newList;
         }
 
         @Override
@@ -175,8 +193,9 @@ public class MainActivity extends AppCompatActivity {
                 textView.setText("이미지가 없습니다.");
             } else {
                 textView.setText("이미지 로드 성공!");
-                postList = posts; // ✅ 불러온 게시물 저장
-                recyclerView.setAdapter(new ImageOnlyAdapter(posts));
+                postList.clear();               // ✅ 기존 리스트 초기화
+                postList.addAll(posts);         // ✅ 새 데이터 추가
+                recyclerView.setAdapter(new ImageOnlyAdapter(postList));
             }
         }
     }
@@ -199,7 +218,6 @@ public class MainActivity extends AppCompatActivity {
         public void onBindViewHolder(ViewHolder holder, int position) {
             PostItem post = postList.get(position);
 
-            // 이미지만 로드
             new Thread(() -> {
                 try {
                     URL url = new URL(post.imageUrl);
@@ -210,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (Exception e) { e.printStackTrace(); }
             }).start();
 
-            // 클릭 시 상세 페이지로 이동
             holder.itemView.setOnClickListener(v -> {
                 Intent intent = new Intent(MainActivity.this, PostDetailActivity.class);
                 intent.putExtra("post_id", post.id);
@@ -263,22 +280,17 @@ public class MainActivity extends AppCompatActivity {
 
                 DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
 
-                // Title 필드 작성
                 dos.writeBytes("--" + boundary + "\r\n");
                 dos.writeBytes("Content-Disposition: form-data; name=\"title\"\r\n\r\n");
                 dos.writeBytes(title + "\r\n");
 
-                // Image 필드 작성
                 dos.writeBytes("--" + boundary + "\r\n");
                 String fileName = "upload_" + System.currentTimeMillis() + ".jpg";
                 dos.writeBytes("Content-Disposition: form-data; name=\"image\"; filename=\"" + fileName + "\"\r\n");
                 dos.writeBytes("Content-Type: image/jpeg\r\n\r\n");
 
-                // ✅ Uri로부터 InputStream 읽기
                 InputStream inputStream = getContentResolver().openInputStream(imageUri);
-                if (inputStream == null) {
-                    return "이미지 파일을 읽을 수 없습니다.";
-                }
+                if (inputStream == null) return "이미지 파일을 읽을 수 없습니다.";
 
                 byte[] buffer = new byte[4096];
                 int bytesRead;
@@ -318,9 +330,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
-    // 정렬 기능
+    // ✅ 정렬 기능
     private void sortPosts(String sortType) {
-        if (postList == null) return;
+        if (postList == null || postList.isEmpty()) return;
         if (sortType.equals("최신순")) {
             Collections.sort(postList, (a, b) -> b.publishedDate.compareTo(a.publishedDate));
         } else if (sortType.equals("좋아요순")) {
@@ -329,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(new ImageOnlyAdapter(postList));
     }
 
-    // 검색 기능
+    // ✅ 검색 기능
     public void onClickSearch(View v) {
         String keyword = editSearch.getText().toString().trim();
         if (keyword.isEmpty()) {

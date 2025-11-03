@@ -7,6 +7,8 @@ from .models import Post, Comment
 from .serializers import PostSerializer, CommentSerializer
 from .forms import PostForm
 from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.db.models import F
 
 # REST API용 ViewSet
 class BlogImages(viewsets.ModelViewSet):
@@ -54,12 +56,12 @@ def post_delete(request, pk):
 def like_post(request, pk):
     try:
         post = Post.objects.get(pk=pk)
-        post.like_count += 1
-        post.save()
+        post.like_count = F('like_count') + 1
+        post.save(update_fields=['like_count'])
+        post.refresh_from_db()  # DB에서 실제 증가된 값 다시 읽기
         return Response({'like_count': post.like_count}, status=status.HTTP_200_OK)
     except Post.DoesNotExist:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
-
 
 # 익명 댓글 작성 API
 @api_view(['POST'])
@@ -69,6 +71,15 @@ def add_comment(request, pk):
     except Post.DoesNotExist:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
+    # 사용자 IP 기반 Rate Limit (10초 이내 중복 댓글 방지)
+    user_ip = request.META.get('REMOTE_ADDR')
+    key = f"comment_limit_{user_ip}_{pk}"
+    if cache.get(key):
+        return Response(
+            {'error': '댓글을 너무 자주 작성하고 있습니다. 잠시 후 다시 시도해주세요.'},
+            status=status.HTTP_429_TOO_MANY_REQUESTS
+        )
+    cache.set(key, True, timeout=10)
     serializer = CommentSerializer(data=request.data)
     if serializer.is_valid():
         serializer.save(post=post)
