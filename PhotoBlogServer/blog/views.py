@@ -13,6 +13,9 @@ class BlogImages(viewsets.ModelViewSet):
     queryset = Post.objects.all().order_by('-published_date')
     serializer_class = PostSerializer
 
+    def get_serializer_context(self):
+        return {'request': self.request}
+
 
 # 웹 페이지용 함수형 View들
 def post_list(request):
