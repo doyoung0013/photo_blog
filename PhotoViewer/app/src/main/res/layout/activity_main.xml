@@ -30,7 +30,7 @@
             android:layout_height="50dp"
             android:layout_weight="1"
             android:text="새로운 이미지 게시"
-            android:onClick="onClickUpload"
+            android:onClick="onClickGoToUpload"
             android:backgroundTint="#FF2C3E50"
             android:textColor="@android:color/white" />
     </LinearLayout>
