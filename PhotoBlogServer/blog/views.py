@@ -18,11 +18,48 @@ class BlogImages(viewsets.ModelViewSet):
     def get_serializer_context(self):
         return {'request': self.request}
     
-    def perform_create(self, serializer):
-        serializer.save(author=User.objects.first(), published_date=timezone.now())
-    
+    def create(self, request, *args, **kwargs):
+        print(f"[DEBUG] 요청 데이터: {request.data}")
+        print(f"[DEBUG] 요청 파일: {request.FILES}")
+        
+        # User 가져오기 또는 생성
+        try:
+            user = User.objects.first()
+            if user is None:
+                print("[DEBUG] User가 없어서 생성합니다.")
+                user = User.objects.create_user(
+                    username='default_user',
+                    email='default@example.com',
+                    password='defaultpassword123'
+                )
+            print(f"[DEBUG] 사용할 User: {user.username} (ID: {user.id})")
+        except Exception as e:
+            print(f"[ERROR] User 처리 중 에러: {e}")
+            return Response(
+                {'error': f'User 처리 오류: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        # Serializer 생성 및 검증
+        serializer = self.get_serializer(data=request.data)
+        if not serializer.is_valid():
+            print(f"[ERROR] Serializer 검증 실패: {serializer.errors}")
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 저장
+        try:
+            serializer.save(author=user, published_date=timezone.now())
+            print("[DEBUG] 게시물 저장 성공!")
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            print(f"[ERROR] 저장 중 에러: {e}")
+            return Response(
+                {'error': f'저장 오류: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
-# 웹 페이지용 함수형 View들SSSSSS
+
+# 웹 페이지용 함수형 View들
 def post_list(request):
     posts = Post.objects.order_by('-published_date')
     return render(request, 'blog/post_list.html', {'posts': posts})
@@ -30,7 +67,7 @@ def post_list(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
-    comments = post.comments.order_by('-created_at')  # 댓글 최신순 정렬
+    comments = post.comments.order_by('-created_at')
     return render(request, 'blog/post_detail.html', {'post': post, 'comments': comments})
 
 
@@ -61,7 +98,7 @@ def like_post(request, pk):
         post = Post.objects.get(pk=pk)
         post.like_count = F('like_count') + 1
         post.save(update_fields=['like_count'])
-        post.refresh_from_db()  # DB에서 실제 증가된 값 다시 읽기
+        post.refresh_from_db()
         return Response({'like_count': post.like_count}, status=status.HTTP_200_OK)
     except Post.DoesNotExist:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
@@ -74,7 +111,6 @@ def add_comment(request, pk):
     except Post.DoesNotExist:
         return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    # 사용자 IP 기반 Rate Limit (30초 이내 중복 댓글 방지)
     user_ip = request.META.get('REMOTE_ADDR')
     key = f"comment_limit_{user_ip}_{pk}"
     if cache.get(key):

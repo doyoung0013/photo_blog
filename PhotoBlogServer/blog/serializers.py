@@ -12,9 +12,17 @@ class PostSerializer(serializers.ModelSerializer):
     comments = CommentSerializer(many=True, read_only=True)
 
     def get_image(self, obj):
-        request = self.context.get('request')
-        if obj.image:
-            return request.build_absolute_uri(obj.image.url)
+        # obj가 dict인 경우 (생성 시) 처리
+        if isinstance(obj, dict):
+            image = obj.get('image')
+        else:
+            image = obj.image
+        
+        if image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(image.url)
+            return image.url
         return None
 
     class Meta:
