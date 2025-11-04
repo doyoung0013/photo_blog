@@ -19,10 +19,17 @@ class BlogImages(viewsets.ModelViewSet):
         return {'request': self.request}
     
     def perform_create(self, serializer):
-        serializer.save(author=User.objects.first(), published_date=timezone.now())
+        # User가 없을 경우를 대비한 처리
+        user = User.objects.first()
+        if user is None:
+            # 기본 사용자 생성 (없을 경우)
+            user = User.objects.create_user(
+                username='default_user',
+                email='default@example.com',
+                password='defaultpassword123'
+            )
 
-
-# 웹 페이지용 함수형 View들
+# 웹 페이지용 함수형 View들SSSSSS
 def post_list(request):
     posts = Post.objects.order_by('-published_date')
     return render(request, 'blog/post_list.html', {'posts': posts})
