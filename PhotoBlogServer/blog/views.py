@@ -19,15 +19,8 @@ class BlogImages(viewsets.ModelViewSet):
         return {'request': self.request}
     
     def perform_create(self, serializer):
-        # User가 없을 경우를 대비한 처리
-        user = User.objects.first()
-        if user is None:
-            # 기본 사용자 생성 (없을 경우)
-            user = User.objects.create_user(
-                username='default_user',
-                email='default@example.com',
-                password='defaultpassword123'
-            )
+        serializer.save(author=User.objects.first(), published_date=timezone.now())
+    
 
 # 웹 페이지용 함수형 View들SSSSSS
 def post_list(request):
